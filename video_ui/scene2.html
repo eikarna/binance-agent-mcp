@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1920, height=1080">
+  <title>Scene 2 - Zero-Float Precision Engine</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      width: 1920px;
+      height: 1080px;
+      background-color: #090a0f;
+      color: #f3f4f6;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 60px 80px;
+      position: relative;
+    }
+
+    .bg-grid {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 1920px;
+      height: 1080px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .glow-effect {
+      position: absolute;
+      top: -100px;
+      right: 100px;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(240, 185, 11, 0.08) 0%, rgba(9, 10, 15, 0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    header {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand-logo {
+      width: 44px;
+      height: 44px;
+      background: #F0B90B;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #090a0f;
+      font-weight: 800;
+      font-size: 24px;
+    }
+
+    .brand-text h1 {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: #ffffff;
+    }
+
+    .brand-text p {
+      font-size: 14px;
+      color: #9ca3af;
+      font-family: "Cascadia Code", Consolas, monospace;
+    }
+
+    .status-tag {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-family: "Cascadia Code", Consolas, monospace;
+      font-size: 13px;
+      color: #9ca3af;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: #10b981;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #10b981;
+    }
+
+    /* Main Content */
+    main {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1fr 1.1fr;
+      gap: 40px;
+      margin-top: 30px;
+      height: 720px;
+    }
+
+    .card {
+      background: rgba(18, 20, 29, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 36px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      backdrop-filter: blur(12px);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .card-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(240, 185, 11, 0.15);
+      color: #f0b90b;
+    }
+
+    .card-icon.danger {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+    }
+
+    .card-title {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      color: #ffffff;
+    }
+
+    .card-subtitle {
+      font-size: 13px;
+      color: #9ca3af;
+      font-family: "Cascadia Code", Consolas, monospace;
+    }
+
+    /* Mathematical Analogy Visual */
+    .comparison-container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      flex: 1;
+      justify-content: center;
+    }
+
+    .box-compare {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 12px;
+      padding: 22px;
+    }
+
+    .box-compare.danger {
+      border-color: rgba(239, 68, 68, 0.3);
+      background: rgba(239, 68, 68, 0.03);
+    }
+
+    .box-compare.success {
+      border-color: rgba(16, 185, 129, 0.3);
+      background: rgba(16, 185, 129, 0.03);
+    }
+
+    .box-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .box-title.danger { color: #f87171; }
+    .box-title.success { color: #34d399; }
+
+    .code-view {
+      font-family: "Cascadia Code", Consolas, monospace;
+      font-size: 14px;
+      background: #050608;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 14px 18px;
+      border-radius: 8px;
+      line-height: 1.6;
+    }
+
+    .danger-text { color: #ef4444; }
+    .success-text { color: #10b981; }
+    .dim-text { color: #6b7280; }
+    .accent-text { color: #f0b90b; }
+
+    /* Right Card: Step Slicing Pipeline */
+    .pipeline-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      flex: 1;
+      justify-content: center;
+    }
+
+    .pipeline-step {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 10px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .step-number {
+      width: 32px;
+      height: 32px;
+      background: rgba(240, 185, 11, 0.15);
+      border: 1px solid rgba(240, 185, 11, 0.3);
+      color: #f0b90b;
+      font-family: "Cascadia Code", Consolas, monospace;
+      font-weight: 700;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .step-body {
+      flex: 1;
+    }
+
+    .step-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #ffffff;
+      margin-bottom: 4px;
+    }
+
+    .step-desc {
+      font-size: 13px;
+      color: #9ca3af;
+      font-family: "Cascadia Code", Consolas, monospace;
+    }
+
+    .terminal-box {
+      background: #050608;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 18px;
+      font-family: "Cascadia Code", Consolas, monospace;
+      font-size: 13px;
+      color: #d1d5db;
+      line-height: 1.7;
+    }
+
+    footer {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 18px;
+      font-size: 13px;
+      color: #6b7280;
+      font-family: "Cascadia Code", Consolas, monospace;
+    }
+
+    svg {
+      width: 20px;
+      height: 20px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="glow-effect"></div>
+
+  <header>
+    <div class="brand">
+      <div class="brand-logo">B</div>
+      <div class="brand-text">
+        <h1>BINANCE AGENT OS</h1>
+        <p>Zero-Float String-Slicing Precision Engine</p>
+      </div>
+    </div>
+    <div class="status-tag">
+      <div class="status-dot"></div>
+      <span>IEEE 754 RESILIENCE VERIFIED</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- Mathematical Problem Analogy -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon danger">
+          <svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </div>
+        <div>
+          <div class="card-title">IEEE 754 Floating-Point Hazard</div>
+          <div class="card-subtitle">JAVASCRIPT BINARY FLOATING IMPERFECTION</div>
+        </div>
+      </div>
+
+      <div class="comparison-container">
+        <div class="box-compare danger">
+          <div class="box-title danger">
+            <span>Naive Arithmetic Rounding (Standard Node.js)</span>
+            <span style="font-size: 12px; font-family: monospace;">FAIL (-1111)</span>
+          </div>
+          <div class="code-view">
+            <span class="dim-text">// 0.1 + 0.2 precision drift</span><br>
+            <span class="dim-text">const qty = </span>0.1 + 0.2;<br>
+            <span class="dim-text">console.log(qty); </span><span class="danger-text">// 0.30000000000000004</span><br>
+            <span class="dim-text">order.send(qty); </span><span class="danger-text">→ Rejected by LOT_SIZE filter</span>
+          </div>
+        </div>
+
+        <div class="box-compare success">
+          <div class="box-title success">
+            <span>Agent OS String-Slicing Engine</span>
+            <span style="font-size: 12px; font-family: monospace;">GUARANTEED (PASS)</span>
+          </div>
+          <div class="code-view">
+            <span class="dim-text">// Exact decimal preservation</span><br>
+            <span class="dim-text">const clean = </span><span class="accent-text">formatPrecision("0.30000000000000004", "0.01")</span>;<br>
+            <span class="dim-text">console.log(clean); </span><span class="success-text">// "0.30" (Exact String)</span><br>
+            <span class="dim-text">order.send(clean); </span><span class="success-text">→ 200 OK Exchange Success</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Execution Engine Pipeline -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <div>
+          <div class="card-title">Multi-Stage Quantization Architecture</div>
+          <div class="card-subtitle">SYMBOL FILTER CACHE & BOUND ENFORCEMENT</div>
+        </div>
+      </div>
+
+      <div class="pipeline-container">
+        <div class="pipeline-step">
+          <div class="step-number">1</div>
+          <div class="step-body">
+            <div class="step-title">LOT_SIZE & PRICE_FILTER Ingestion</div>
+            <div class="step-desc">Fetches and caches tickSize, stepSize, minQty, and maxQty from Binance exchangeInfo.</div>
+          </div>
+        </div>
+
+        <div class="pipeline-step">
+          <div class="step-number">2</div>
+          <div class="step-body">
+            <div class="step-title">Strict Substring Truncation</div>
+            <div class="step-desc">Parses decimal offset without binary float conversion, preventing 0.9999999 over-allocation.</div>
+          </div>
+        </div>
+
+        <div class="terminal-box">
+          <div style="color: #6b7280; margin-bottom: 6px;">// Benchmark Verification Output</div>
+          <div><span style="color: #06b6d4;">[TEST]</span> Symbol: BTCUSDT | stepSize: 0.00001 | tickSize: 0.01</div>
+          <div><span style="color: #f0b90b;">[INPUT]</span>  Raw LLM Quantity: <span style="color: #ef4444;">"0.04819999999999984"</span></div>
+          <div><span style="color: #10b981;">[OUTPUT]</span> Quantized Order:   <span style="color: #10b981; font-weight: bold;">"0.04819"</span> (Passed exchange bounds)</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div>PILLAR 02: MATHEMATICAL PRECISION & LOT_SIZE COMPLIANCE</div>
+    <div>BINANCE AGENT OS • MCP INTEGRATION PROTOCOL</div>
+  </footer>
+</body>
+</html>

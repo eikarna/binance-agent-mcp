@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1920, height=1080">
+  <title>Scene 4 - Idempotency & Rate Limit Resilience</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      width: 1920px;
+      height: 1080px;
+      background-color: #090a0f;
+      color: #f3f4f6;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 60px 80px;
+      position: relative;
+    }
+
+    .bg-grid {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 1920px;
+      height: 1080px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .glow-effect {
+      position: absolute;
+      top: -100px;
+      right: 100px;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(240, 185, 11, 0.08) 0%, rgba(9, 10, 15, 0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    header {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand-logo {
+      width: 44px;
+      height: 44px;
+      background: #F0B90B;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #090a0f;
+      font-weight: 800;
+      font-size: 24px;
+    }
+
+    .brand-text h1 {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: #ffffff;
+    }
+
+    .brand-text p {
+      font-size: 14px;
+      color: #9ca3af;
+      font-family: "Cascadia Code", Consolas, monospace;
+    }
+
+    .status-tag {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-family: "Cascadia Code", Consolas, monospace;
+      font-size: 13px;
+      color: #9ca3af;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: #10b981;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #10b981;
+    }
+
+    main {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      margin-top: 30px;
+      height: 720px;
+    }
+
+    .card {
+      background: rgba(18, 20, 29, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 36px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      backdrop-filter: blur(12px);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .card-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(240, 185, 11, 0.15);
+      color: #f0b90b;
+    }
+
+    .card-title {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      color: #ffffff;
+    }
+
+    .card-subtitle {
+      font-size: 13px;
+      color: #9ca3af;
+      font-family: "Cascadia Code", Consolas, monospace;
+    }
+
+    .features-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      flex: 1;
+      justify-content: center;
+    }
+
+    .feature-box {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 12px;
+      padding: 18px 22px;
+    }
+
+    .f-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #ffffff;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .f-desc {
+      font-size: 13px;
+      color: #9ca3af;
+      line-height: 1.5;
+    }
+
+    .terminal-box {
+      background: #050608;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 20px;
+      font-family: "Cascadia Code", Consolas, monospace;
+      font-size: 13px;
+      color: #d1d5db;
+      line-height: 1.7;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .badge-yellow {
+      background: rgba(240, 185, 11, 0.15);
+      color: #f0b90b;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+    }
+
+    footer {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 18px;
+      font-size: 13px;
+      color: #6b7280;
+      font-family: "Cascadia Code", Consolas, monospace;
+    }
+
+    svg {
+      width: 20px;
+      height: 20px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="glow-effect"></div>
+
+  <header>
+    <div class="brand">
+      <div class="brand-logo">B</div>
+      <div class="brand-text">
+        <h1>BINANCE AGENT OS</h1>
+        <p>Idempotency Keying & Proactive Rate-Limit Architecture</p>
+      </div>
+    </div>
+    <div class="status-tag">
+      <div class="status-dot"></div>
+      <span>ZERO 429 IP BAN RESILIENCE</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- Left Card: Core Reliability Mechanisms -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+        </div>
+        <div>
+          <div class="card-title">Dual Protection Mechanics</div>
+          <div class="card-subtitle">PREVENTING DUPLICATES & RATE EXHAUSTION</div>
+        </div>
+      </div>
+
+      <div class="features-list">
+        <div class="feature-box">
+          <div class="f-title">
+            <svg style="color: #f0b90b;" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span>Cryptographic Idempotency Hash</span>
+          </div>
+          <div class="f-desc">
+            Deterministic SHA-256 clientOrderId keying ensures network retries or LLM looping never execute duplicate trades on the Binance matching engine.
+          </div>
+        </div>
+
+        <div class="feature-box">
+          <div class="f-title">
+            <svg style="color: #10b981;" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            <span>Proactive Rate-Limit Sentinel</span>
+          </div>
+          <div class="f-desc">
+            Tracks x-mbx-used-weight headers in real time. Automatically pauses order dispatch and triggers jittered exponential backoff at 80% quota capacity.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Card: Live Execution Log & Summary -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </div>
+        <div>
+          <div class="card-title">Production Telemetry Log</div>
+          <div class="card-subtitle">ENTERPRISE-GRADE CONTINUOUS EXECUTION</div>
+        </div>
+      </div>
+
+      <div class="terminal-box">
+        <div>
+          <div style="color: #6b7280; margin-bottom: 6px;">// Duplicate Dispatch Intercept</div>
+          <div><span style="color: #06b6d4;">[RETRY]</span> Incoming Tool Request: Hash [9A2F8B12]</div>
+          <div><span style="color: #f0b90b;">[DEDUP]</span> In-flight cache hit: clientOrderId=HARDENED_9A2F8B12</div>
+          <div><span style="color: #10b981;">[RESOLVED]</span> Returning cached order response without duplicate execution.</div>
+        </div>
+
+        <div style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 10px; margin-top: 10px;">
+          <div style="color: #6b7280; margin-bottom: 6px;">// Proactive Weight Backoff</div>
+          <div><span style="color: #06b6d4;">[WEIGHT]</span> Header x-mbx-used-weight-1m: <span style="color: #f0b90b;">980 / 1200 (81.6%)</span></div>
+          <div><span style="color: #ef4444;">[SENTINEL]</span> Threshold exceeded (>80%). Backoff sleep: 1,420ms</div>
+          <div><span style="color: #10b981;">[RESUME]</span> Weight refreshed (120/1200). Pipeline operating at full speed.</div>
+        </div>
+
+        <div style="background: rgba(240, 185, 11, 0.05); border: 1px solid rgba(240, 185, 11, 0.2); padding: 10px; border-radius: 6px; font-size: 12px; color: #f0b90b;">
+          ★ Production-Ready Autonomous Subsystem for Binance Agent OS Hackathon.
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div>PILLAR 04: IDEMPOTENCY & PROACTIVE RATE-LIMIT RESILIENCE</div>
+    <div>BINANCE AGENT OS • MCP INTEGRATION PROTOCOL</div>
+  </footer>
+</body>
+</html>

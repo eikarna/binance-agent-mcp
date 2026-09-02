@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1920, height=1080">
+  <title>Scene 3 - Risk Interception</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      width: 1920px;
+      height: 1080px;
+      background-color: #090a0f;
+      color: #f3f4f6;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 60px 80px;
+      position: relative;
+    }
+
+    .bg-grid {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 1920px;
+      height: 1080px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .glow-effect {
+      position: absolute;
+      top: -100px;
+      right: 100px;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(240, 185, 11, 0.08) 0%, rgba(9, 10, 15, 0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    header {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand-logo {
+      width: 44px;
+      height: 44px;
+      background: #F0B90B;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #090a0f;
+      font-weight: 800;
+      font-size: 24px;
+    }
+
+    .brand-text h1 {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: #ffffff;
+    }
+
+    .brand-text p {
+      font-size: 14px;
+      color: #9ca3af;
+      font-family: "Cascadia Code", Consolas, monospace;
+    }
+
+    .status-tag {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-family: "Cascadia Code", Consolas, monospace;
+      font-size: 13px;
+      color: #9ca3af;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: #10b981;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #10b981;
+    }
+
+    main {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      margin-top: 30px;
+      height: 720px;
+    }
+
+    .card {
+      background: rgba(18, 20, 29, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 36px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      backdrop-filter: blur(12px);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .card-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(240, 185, 11, 0.15);
+      color: #f0b90b;
+    }
+
+    .card-title {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      color: #ffffff;
+    }
+
+    .card-subtitle {
+      font-size: 13px;
+      color: #9ca3af;
+      font-family: "Cascadia Code", Consolas, monospace;
+    }
+
+    .guards-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      flex: 1;
+      justify-content: center;
+    }
+
+    .guard-item {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 10px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .guard-info {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .guard-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      background: rgba(240, 185, 11, 0.1);
+      color: #f0b90b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .guard-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #ffffff;
+    }
+
+    .guard-desc {
+      font-size: 12px;
+      color: #6b7280;
+      font-family: "Cascadia Code", Consolas, monospace;
+    }
+
+    .guard-tag {
+      font-family: "Cascadia Code", Consolas, monospace;
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    /* Terminal Simulation Box */
+    .terminal-box {
+      background: #050608;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 20px;
+      font-family: "Cascadia Code", Consolas, monospace;
+      font-size: 13px;
+      color: #d1d5db;
+      line-height: 1.7;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .log-line {
+      display: flex;
+      gap: 10px;
+    }
+
+    .log-tag-red { color: #ef4444; font-weight: bold; }
+    .log-tag-yellow { color: #f0b90b; font-weight: bold; }
+    .log-tag-green { color: #10b981; font-weight: bold; }
+    .log-tag-cyan { color: #06b6d4; font-weight: bold; }
+    .log-dim { color: #6b7280; }
+
+    footer {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 18px;
+      font-size: 13px;
+      color: #6b7280;
+      font-family: "Cascadia Code", Consolas, monospace;
+    }
+
+    svg {
+      width: 20px;
+      height: 20px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="glow-effect"></div>
+
+  <header>
+    <div class="brand">
+      <div class="brand-logo">B</div>
+      <div class="brand-text">
+        <h1>BINANCE AGENT OS</h1>
+        <p>Pre-Trade Policy Engine & Risk Interception Guard</p>
+      </div>
+    </div>
+    <div class="status-tag">
+      <div class="status-dot"></div>
+      <span>ZERO CAPITAL LOSS ASSURANCE</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- Policy Gates -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div>
+          <div class="card-title">Pre-Trade Policy Stack</div>
+          <div class="card-subtitle">PROGRAMMATIC CAPITAL RISK ENFORCEMENT</div>
+        </div>
+      </div>
+
+      <div class="guards-list">
+        <div class="guard-item">
+          <div class="guard-info">
+            <div class="guard-icon">
+              <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+            <div>
+              <div class="guard-title">Max Order Notional Cap</div>
+              <div class="guard-desc">Enforces strict maximum single-order value (e.g., $500 max).</div>
+            </div>
+          </div>
+          <div class="guard-tag">ACTIVE</div>
+        </div>
+
+        <div class="guard-item">
+          <div class="guard-info">
+            <div class="guard-icon">
+              <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+            </div>
+            <div>
+              <div class="guard-title">Max Daily Loss Cutoff</div>
+              <div class="guard-desc">Stops autonomous execution if cumulative drawdown exceeds threshold.</div>
+            </div>
+          </div>
+          <div class="guard-tag">ACTIVE</div>
+        </div>
+
+        <div class="guard-item">
+          <div class="guard-info">
+            <div class="guard-icon">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 14.14 14.14"/></svg>
+            </div>
+            <div>
+              <div class="guard-title">Global Emergency Kill-Switch</div>
+              <div class="guard-desc">One-click atomic circuit breaker terminating all active order dispatch.</div>
+            </div>
+          </div>
+          <div class="guard-tag">ACTIVE</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Execution & Interception Log -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+        </div>
+        <div>
+          <div class="card-title">Risk Sentinel Intercept Telemetry</div>
+          <div class="card-subtitle">REAL-TIME ANOMALY DETECTION & INTERCEPT</div>
+        </div>
+      </div>
+
+      <div class="terminal-box">
+        <div>
+          <div class="log-line">
+            <span class="log-dim">[09:20:11]</span>
+            <span class="log-tag-cyan">[POLICY]</span>
+            <span>Evaluating Order: BUY 1.5 BTCUSDT (~$135,000 USD)</span>
+          </div>
+          <div class="log-line">
+            <span class="log-dim">[09:20:11]</span>
+            <span class="log-tag-yellow">[CHECK]</span>
+            <span>Policy maxSingleTradeNotionalUSD: $500.00</span>
+          </div>
+          <div class="log-line">
+            <span class="log-dim">[09:20:11]</span>
+            <span class="log-tag-red">[INTERCEPT]</span>
+            <span style="color: #f87171;">Order blocked: Notional $135,000 > Max Limit $500</span>
+          </div>
+        </div>
+
+        <div style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 12px; margin-top: 12px;">
+          <div class="log-line">
+            <span class="log-dim">[09:20:12]</span>
+            <span class="log-tag-cyan">[POLICY]</span>
+            <span>Evaluating Adjusted Order: BUY 0.005 BTCUSDT (~$450 USD)</span>
+          </div>
+          <div class="log-line">
+            <span class="log-dim">[09:20:12]</span>
+            <span class="log-tag-green">[PASS]</span>
+            <span style="color: #34d399;">Risk verified. Signed & forwarded to Binance MCP Gateway</span>
+          </div>
+          <div class="log-line">
+            <span class="log-dim">[09:20:12]</span>
+            <span class="log-tag-green">[CONFIRM]</span>
+            <span style="color: #10b981;">Order Filled: 0.005 BTC @ $90,000 | Status: FILLED</span>
+          </div>
+        </div>
+
+        <div style="background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.2); padding: 10px; border-radius: 6px; font-size: 12px; color: #10b981;">
+          ✓ Capital Protection: 100% of malicious / hallucinated large orders safely intercepted.
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div>PILLAR 03: PRE-TRADE RISK INTERCEPTION & NOTIONAL LIMITS</div>
+    <div>BINANCE AGENT OS • MCP INTEGRATION PROTOCOL</div>
+  </footer>
+</body>
+</html>

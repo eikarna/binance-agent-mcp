@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1920, height=1080">
+  <title>Scene 1 - Architecture & Ecosystem</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      width: 1920px;
+      height: 1080px;
+      background-color: #090a0f;
+      color: #f3f4f6;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 60px 80px;
+      position: relative;
+    }
+
+    /* Subtle background grid */
+    .bg-grid {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 1920px;
+      height: 1080px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .glow-effect {
+      position: absolute;
+      top: -100px;
+      right: 100px;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(240, 185, 11, 0.08) 0%, rgba(9, 10, 15, 0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    header {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand-logo {
+      width: 44px;
+      height: 44px;
+      background: #F0B90B;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #090a0f;
+      font-weight: 800;
+      font-size: 24px;
+    }
+
+    .brand-text h1 {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: #ffffff;
+    }
+
+    .brand-text p {
+      font-size: 14px;
+      color: #9ca3af;
+      font-family: "Cascadia Code", Consolas, monospace;
+    }
+
+    .status-tag {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-family: "Cascadia Code", Consolas, monospace;
+      font-size: 13px;
+      color: #9ca3af;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: #10b981;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #10b981;
+    }
+
+    /* Main Content */
+    main {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      margin-top: 30px;
+      height: 720px;
+    }
+
+    .card {
+      background: rgba(18, 20, 29, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 36px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      backdrop-filter: blur(12px);
+    }
+
+    .card.fragile {
+      border-color: rgba(239, 68, 68, 0.25);
+      background: linear-gradient(180deg, rgba(239, 68, 68, 0.03) 0%, rgba(18, 20, 29, 0.7) 100%);
+    }
+
+    .card.hardened {
+      border-color: rgba(240, 185, 11, 0.3);
+      background: linear-gradient(180deg, rgba(240, 185, 11, 0.03) 0%, rgba(18, 20, 29, 0.7) 100%);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .card-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card.fragile .card-icon {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+    }
+
+    .card.hardened .card-icon {
+      background: rgba(240, 185, 11, 0.15);
+      color: #f0b90b;
+    }
+
+    .card-title {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    .card.fragile .card-title { color: #f87171; }
+    .card.hardened .card-title { color: #fbbf24; }
+
+    .card-desc {
+      font-size: 15px;
+      color: #9ca3af;
+      line-height: 1.5;
+      margin-bottom: 24px;
+    }
+
+    /* Visual Architectural Flow / Diagram */
+    .flow-diagram {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      justify-content: center;
+    }
+
+    .flow-node {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 10px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .node-info {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .node-icon-box {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.05);
+      color: #9ca3af;
+    }
+
+    .node-text {
+      font-size: 15px;
+      font-weight: 600;
+      color: #e5e7eb;
+    }
+
+    .node-subtext {
+      font-size: 12px;
+      color: #6b7280;
+      font-family: "Cascadia Code", Consolas, monospace;
+    }
+
+    .node-status {
+      font-family: "Cascadia Code", Consolas, monospace;
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+
+    .status-danger {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .status-safe {
+      background: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .flow-arrow {
+      text-align: center;
+      color: #4b5563;
+      font-size: 18px;
+      margin: -4px 0;
+    }
+
+    /* Terminal Console Preview inside hardened card */
+    .terminal-box {
+      background: #050608;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 16px;
+      font-family: "Cascadia Code", Consolas, monospace;
+      font-size: 13px;
+      color: #d1d5db;
+      line-height: 1.6;
+      margin-top: 14px;
+    }
+
+    .t-row { display: flex; gap: 8px; }
+    .t-dim { color: #6b7280; }
+    .t-green { color: #10b981; }
+    .t-yellow { color: #f0b90b; }
+    .t-red { color: #ef4444; }
+    .t-cyan { color: #06b6d4; }
+
+    footer {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 18px;
+      font-size: 13px;
+      color: #6b7280;
+      font-family: "Cascadia Code", Consolas, monospace;
+    }
+
+    svg {
+      width: 20px;
+      height: 20px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="glow-effect"></div>
+
+  <header>
+    <div class="brand">
+      <div class="brand-logo">B</div>
+      <div class="brand-text">
+        <h1>BINANCE AGENT OS</h1>
+        <p>Hardened Autonomous Trading Subsystem & Model Context Protocol</p>
+      </div>
+    </div>
+    <div class="status-tag">
+      <div class="status-dot"></div>
+      <span>ARCHITECTURAL BENCHMARK</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- Fragile Architecture -->
+    <div class="card fragile">
+      <div class="card-header">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+        </div>
+        <div>
+          <div class="card-title">Naive LLM Tool-Calling</div>
+          <div style="font-size: 13px; color: #ef4444; font-family: monospace;">DIRECT UNRESTRICTED EXECUTION</div>
+        </div>
+      </div>
+      <div class="card-desc">
+        Standard AI agents pass hallucinated inputs directly to exchange APIs, creating catastrophic exposure to floating-point truncation, unhedged order spam, and IP bans.
+      </div>
+
+      <div class="flow-diagram">
+        <div class="flow-node">
+          <div class="node-info">
+            <div class="node-icon-box">
+              <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6v6H9z"/></svg>
+            </div>
+            <div>
+              <div class="node-text">Autonomous LLM Prompt</div>
+              <div class="node-subtext">Output: orderQty = 0.0019999999999998</div>
+            </div>
+          </div>
+          <div class="node-status status-danger">Raw Float</div>
+        </div>
+
+        <div class="flow-arrow">↓</div>
+
+        <div class="flow-node">
+          <div class="node-info">
+            <div class="node-icon-box">
+              <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            </div>
+            <div>
+              <div class="node-text">Unchecked Direct Gateway</div>
+              <div class="node-subtext">No rate-limit guards, no risk intercept</div>
+            </div>
+          </div>
+          <div class="node-status status-danger">Zero Guard</div>
+        </div>
+
+        <div class="flow-arrow">↓</div>
+
+        <div class="flow-node">
+          <div class="node-info">
+            <div class="node-icon-box">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            </div>
+            <div>
+              <div class="node-text">Binance REST API Rejection</div>
+              <div class="node-subtext">HTTP 400 (-1111 Precision / -1003 Banned)</div>
+            </div>
+          </div>
+          <div class="node-status status-danger">FATAL ERROR</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hardened Architecture -->
+    <div class="card hardened">
+      <div class="card-header">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div>
+          <div class="card-title">Hardened Agent OS Subsystem</div>
+          <div style="font-size: 13px; color: #f0b90b; font-family: monospace;">ENTERPRISE DEFENSE-IN-DEPTH LAYER</div>
+        </div>
+      </div>
+      <div class="card-desc">
+        A multi-layered defense architecture with zero-float string slicing, pre-trade risk policy enforcement, client-side idempotency, and proactive rate-limit backoff.
+      </div>
+
+      <div class="flow-diagram">
+        <div class="flow-node">
+          <div class="node-info">
+            <div class="node-icon-box">
+              <svg viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+            </div>
+            <div>
+              <div class="node-text">Agent OS Precision Engine</div>
+              <div class="node-subtext">String slicing truncation via stepSize & tickSize</div>
+            </div>
+          </div>
+          <div class="node-status status-safe">Zero-Float Guaranteed</div>
+        </div>
+
+        <div class="flow-arrow">↓</div>
+
+        <div class="flow-node">
+          <div class="node-info">
+            <div class="node-icon-box">
+              <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+            <div>
+              <div class="node-text">Risk & Idempotency Sentinel</div>
+              <div class="node-subtext">Max order bounds + In-flight deduplication hash</div>
+            </div>
+          </div>
+          <div class="node-status status-safe">100% Intercepted</div>
+        </div>
+
+        <div class="terminal-box">
+          <div class="t-row"><span class="t-dim">[SYSTEM]</span> <span class="t-cyan">Init Engine:</span> <span class="t-green">ZeroFloat</span> + <span class="t-yellow">RiskPolicy</span> + <span class="t-green">RateSentinel</span></div>
+          <div class="t-row"><span class="t-dim">[GUARD]</span>  <span class="t-green">✓ Precision verified:</span> BTCUSDT qty=0.0019 (stepSize=0.0001)</div>
+          <div class="t-row"><span class="t-dim">[SECURE]</span> <span class="t-yellow">★ Order Dispatched:</span> clientOrderId=HARDENED_9A2F8B12</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div>PILLAR 01: SYSTEM OVERVIEW & THREAT MODELING</div>
+    <div>BINANCE AGENT OS • MCP INTEGRATION PROTOCOL</div>
+  </footer>
+</body>
+</html>
