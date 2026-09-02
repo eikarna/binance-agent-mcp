@@ -171,12 +171,20 @@ Add the server to your `claude_desktop_config.json` or Cursor MCP settings:
 # Run unit & security test suite
 bun test
 
+# Strict TypeScript type checking
+bun run typecheck
+
 # Run interactive TUI demo
 bun run demo
-
-# Type checking
-bun run typecheck
 ```
+
+---
+
+## 🏛️ Full MCP Specification Compliance
+Unlike tool-only wrappers, this server implements all 3 core primitives of the Model Context Protocol:
+1. **Tools**: Hardened execution functions guarded by pre-trade risk policies and float-drift protection.
+2. **Resources (`binance://market/{symbol}`, `binance://risk/parameters`)**: Dynamic contextual feeds exposing real-time order books, spreads, and pre-trade risk thresholds directly into the LLM context.
+3. **Prompts (`analyze_orderbook_imbalance`, `execute_guarded_trade`)**: Standardized system workflows guiding autonomous agents to inspect order book depth and evaluate risk boundaries before submitting orders.
 
 ---
 
