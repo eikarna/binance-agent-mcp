@@ -1,4 +1,5 @@
-import { runServer } from "./server.ts";
+#!/usr/bin/env node
+import { runServer } from "./server.js";
 
 // Launch MCP server over stdio
 runServer().catch((error) => {

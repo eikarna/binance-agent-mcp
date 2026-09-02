@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "binance": {
+      "command": "bunx",
+      "args": [
+        "binance-agent-mcp"
+      ],
+      "env": {
+        "BINANCE_API_KEY": "YOUR_API_KEY_HERE",
+        "BINANCE_API_SECRET": "YOUR_API_SECRET_HERE",
+        "BINANCE_TESTNET": "true"
+      }
+    }
+  }
+}
