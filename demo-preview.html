@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Binance Agent OS & MCP Demo</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.css" />
+  <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #09090b;
+      color: #fafafa;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .container {
+      width: 100%;
+      max-width: 1000px;
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+    }
+    .header {
+      background: #141416;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #27272a;
+    }
+    .dots {
+      display: flex;
+      gap: 8px;
+    }
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    .dot.red { background: #ef4444; }
+    .dot.yellow { background: #eab308; }
+    .dot.green { background: #22c55e; }
+    .title {
+      font-size: 13px;
+      font-family: monospace;
+      color: #a1a1aa;
+    }
+    .badge {
+      font-size: 11px;
+      background: rgba(240, 185, 11, 0.15);
+      color: #f0b90b;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+      border: 1px solid rgba(240, 185, 11, 0.3);
+    }
+    #terminal {
+      padding: 16px;
+      background: #0c0c0e;
+    }
+    .footer {
+      padding: 12px 20px;
+      background: #141416;
+      border-top: 1px solid #27272a;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: #71717a;
+    }
+    .status-live {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #22c55e;
+      font-weight: 500;
+    }
+    .pulse {
+      width: 8px;
+      height: 8px;
+      background: #22c55e;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #22c55e;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="dots">
+        <div class="dot red"></div>
+        <div class="dot yellow"></div>
+        <div class="dot green"></div>
+      </div>
+      <div class="title">binance-agent-mcp — autonomous-trader-node</div>
+      <div class="badge">Binance Agent OS Hackathon</div>
+    </div>
+    <div id="terminal"></div>
+    <div class="footer">
+      <div class="status-live">
+        <div class="pulse"></div>
+        <span>Agent Engine Running (EIP-712 Active)</span>
+      </div>
+      <div>Press Ctrl+C to disconnect MCP session</div>
+    </div>
+  </div>
+
+  <script>
+    const term = new Terminal({
+      theme: {
+        background: '#0c0c0e',
+        foreground: '#e4e4e7',
+        cursor: '#f0b90b',
+        black: '#18181b',
+        red: '#ef4444',
+        green: '#22c55e',
+        yellow: '#f0b90b',
+        blue: '#3b82f6',
+        magenta: '#a855f7',
+        cyan: '#06b6d4',
+        white: '#fafafa'
+      },
+      fontSize: 13,
+      fontFamily: 'Menlo, Monaco, "Courier New", monospace',
+      cursorBlink: true,
+      rows: 24,
+      cols: 90
+    });
+
+    term.open(document.getElementById('terminal'));
+
+    const lines = [
+      "\x1b[1;33m⚡ Initializing Binance Agent OS & Model Context Protocol Server...\x1b[0m",
+      "\x1b[90m[CONFIG]\x1b[0m Runtime: Bun v1.3.14 | Network: Binance Testnet | Mode: DRY_RUN=false",
+      "\x1b[90m[MCP]\x1b[0m Registered 7 Tools: \x1b[36mget24hrTicker, getOrderBook, detectTriangularArbitrage, submitArbitrageRoute, createSpotOrder, getKlines, getAccountBalance\x1b[0m",
+      "\x1b[90m[EIP-712]\x1b[0m Initialized Typed Settlement Domain: \x1b[32mBinanceAgentArbitrage v1 (ChainId: 56)\x1b[0m",
+      "",
+      "\x1b[1;37m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\x1b[0m",
+      "\x1b[1;33m [BINANCE AGENT OS] TELEMETRY DASHBOARD | ACTIVE STRATEGY: TRIANGULAR ARBITRAGE\x1b[0m",
+      "\x1b[1;37m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\x1b[0m",
+      " \x1b[32m● BID VOLUME:\x1b[0m 418.52 BTC  \x1b[32m[████████████████████          ]\x1b[0m  \x1b[31m● ASK VOLUME:\x1b[0m 389.10 BTC",
+      " \x1b[33m● ORDERBOOK IMBALANCE:\x1b[0m +0.0712 (\x1b[32mBullish Flow Detected\x1b[0m)",
+      "",
+      "\x1b[1;36m[AGENT ACTION STREAM]\x1b[0m",
+      " \x1b[90m15:43:10\x1b[0m \x1b[33mScanning Tri-Pair Liquidity:\x1b[0m BTC/USDT ➔ ETH/BTC ➔ ETH/USDT",
+      " \x1b[90m15:43:11\x1b[0m \x1b[32m[OPPORTUNITY FOUND]\x1b[0m Discrepancy Rate: \x1b[1;32m+0.42% (42 bps)\x1b[0m | Min Spread Required: 15 bps",
+      " \x1b[90m15:43:11\x1b[0m \x1b[35m[EIP-712 SIGNING]\x1b[0m Generating typed struct hash & secp256k1 signature...",
+      " \x1b[90m15:43:12\x1b[0m \x1b[35m[VERIFICATION]\x1b[0m Digest: 0x8a92f...41e ➔ Signer: 0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed \x1b[32m(VALID)\x1b[0m",
+      " \x1b[90m15:43:12\x1b[0m \x1b[1;33m[EXECUTING ROUTE]\x1b[0m Submitting atomic batch order via Binance API v3...",
+      "   \x1b[90m├── Leg 1:\x1b[0m BUY BTC/USDT @ 64,250.00 (Filled 0.500 BTC)",
+      "   \x1b[90m├── Leg 2:\x1b[0m BUY ETH/BTC  @ 0.05210   (Filled 9.596 ETH)",
+      "   \x1b[90m└── Leg 3:\x1b[0m SELL ETH/USDT @ 3,362.40 (Received 32,265.65 USDT)",
+      " \x1b[90m15:43:13\x1b[0m \x1b[1;32m✔ SETTLEMENT COMPLETED:\x1b[0m Net Profit: \x1b[1;32m+140.65 USDT (+0.437%)\x1b[0m | Execution Latency: 48ms",
+      "",
+      "\x1b[1;32m⚡ System Status: Nominal | Ready for next Claude Desktop MCP prompt.\x1b[0m"
+    ];
+
+    let i = 0;
+    function typeLine() {
+      if (i < lines.length) {
+        term.writeln(lines[i]);
+        i++;
+        setTimeout(typeLine, 350);
+      }
+    }
+    setTimeout(typeLine, 500);
+  </script>
+</body>
+</html>
