@@ -1,0 +1,35 @@
+{
+  "name": "binance-agent-mcp",
+  "version": "1.0.0",
+  "description": "Production-grade Model Context Protocol (MCP) Server & Autonomous Agent for Binance Spot & Futures Trading",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "bun run --watch src/index.ts",
+    "build": "bun build src/index.ts --outdir dist --target node",
+    "test": "bun test",
+    "typecheck": "bun x tsc --noEmit"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.6.1",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/node": "^22.13.9",
+    "typescript": "^5.8.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "binance",
+    "mcp",
+    "model-context-protocol",
+    "ai-agent",
+    "crypto-trading",
+    "agent-os"
+  ],
+  "author": "Nix Seymour",
+  "license": "MIT"
+}
