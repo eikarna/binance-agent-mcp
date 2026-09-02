@@ -147,8 +147,8 @@ export class BinanceClient {
 			asks: [string, string][];
 		};
 
-		const bestBid = data.bids.length > 0 ? parseFloat(data.bids[0]![0]) : 0;
-		const bestAsk = data.asks.length > 0 ? parseFloat(data.asks[0]![0]) : 0;
+		const bestBid = data.bids.length > 0 ? parseFloat(data.bids[0]?.[0]) : 0;
+		const bestAsk = data.asks.length > 0 ? parseFloat(data.asks[0]?.[0]) : 0;
 		const spread = bestAsk > 0 && bestBid > 0 ? bestAsk - bestBid : 0;
 		const spreadPercent = bestBid > 0 ? (spread / bestBid) * 100 : 0;
 

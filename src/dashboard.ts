@@ -220,7 +220,7 @@ export class Dashboard {
 
 		// Middle Section: Depth Graph
 		output += `${CYAN}${BOLD}--- MARKET DEPTH ---${RESET}\n`;
-		output += this.renderDepthGraph() + "\n";
+		output += `${this.renderDepthGraph()}\n`;
 
 		// Bottom Section: Signal Stream
 		output += `${CYAN}${BOLD}--- SIGNAL & EVENT STREAM ---${RESET}\n`;

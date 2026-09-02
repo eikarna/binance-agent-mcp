@@ -1,14 +1,14 @@
+import { createHmac } from "node:crypto";
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import {
 	CallToolRequestSchema,
-	ListToolsRequestSchema,
-	ListResourcesRequestSchema,
-	ReadResourceRequestSchema,
-	ListPromptsRequestSchema,
 	GetPromptRequestSchema,
+	ListPromptsRequestSchema,
+	ListResourcesRequestSchema,
+	ListToolsRequestSchema,
+	ReadResourceRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
-import { createHmac } from "crypto";
 import { z } from "zod";
 import type { AgentSettlementPayload } from "./arbitrage.ts";
 import { BinanceClient } from "./client.ts";
@@ -394,13 +394,15 @@ export function createMcpServer(): Server {
 				{
 					uri: "binance://market/btc-overview",
 					name: "BTC/USDT Market Intelligence",
-					description: "Real-time BTC ticker, 24hr volume, and orderbook spread metrics",
+					description:
+						"Real-time BTC ticker, 24hr volume, and orderbook spread metrics",
 					mimeType: "application/json",
 				},
 				{
 					uri: "binance://risk/guardrails",
 					name: "Active Risk Guardrails & Safeguard Policy",
-					description: "Pre-trade limits including Max Notional Cap, Slippage Collar, and Rate-Limit parameters",
+					description:
+						"Pre-trade limits including Max Notional Cap, Slippage Collar, and Rate-Limit parameters",
 					mimeType: "application/json",
 				},
 			],
@@ -452,7 +454,8 @@ export function createMcpServer(): Server {
 			prompts: [
 				{
 					name: "institutional_trade_analysis",
-					description: "Evaluate symbol orderbook, calculate slippage & execute trade within hard risk limits",
+					description:
+						"Evaluate symbol orderbook, calculate slippage & execute trade within hard risk limits",
 					arguments: [
 						{
 							name: "symbol",
