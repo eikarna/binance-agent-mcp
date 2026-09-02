@@ -1,0 +1,1 @@
+Let me first explore the existing codebase to understand the project structure and build on top of it.
