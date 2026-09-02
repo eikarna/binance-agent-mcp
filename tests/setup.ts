@@ -1,9 +1,7 @@
 import { mock } from "bun:test";
 import { fixtures } from "./fixtures.ts";
 
-const originalFetch = globalThis.fetch;
-
-globalThis.fetch = mock(async (input: string | Request | URL, init?: RequestInit) => {
+const mockFetch = mock(async (input: string | Request | URL, init?: RequestInit) => {
   const urlString = input instanceof Request ? input.url : input.toString();
   const url = new URL(urlString);
   const pathname = url.pathname;
@@ -66,3 +64,5 @@ globalThis.fetch = mock(async (input: string | Request | URL, init?: RequestInit
   // Fallback to original fetch for unmatched requests, or error
   return new Response("Not Found", { status: 404 });
 });
+
+globalThis.fetch = mockFetch as any;
