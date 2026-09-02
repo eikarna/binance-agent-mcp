@@ -8,9 +8,15 @@ import { z } from "zod";
 import { BinanceClient } from "./client.ts";
 import { loadConfig } from "./config.ts";
 
+ 
+import { ArbitrageDetector } from "./detector.ts";
+import type { AgentSettlementPayload } from "./arbitrage.ts";
+import { createHmac } from "crypto";
 export function createMcpServer(): Server {
+ 
   const config = loadConfig();
   const client = new BinanceClient(config);
+  const detector = new ArbitrageDetector(client);
 
   const server = new Server(
     {
@@ -151,6 +157,35 @@ export function createMcpServer(): Server {
             required: ["symbol", "orderId"],
           },
         },
+        {
+          name: "arbitrage_detect_triangular",
+          description: "Detect autonomous triangular arbitrage opportunities across 3 assets.",
+          inputSchema: {
+            type: "object",
+            properties: {
+              base: { type: "string" },
+              quote1: { type: "string" },
+              quote2: { type: "string" },
+              amount: { type: "number" }
+            },
+            required: ["base", "quote1", "quote2", "amount"]
+          }
+        },
+        {
+          name: "arbitrage_settle_agent_payload",
+          description: "Generate cryptographically signed agent-to-agent settlement payload.",
+          inputSchema: {
+            type: "object",
+            properties: {
+              agentId: { type: "string" },
+              opportunityId: { type: "string" },
+              executionRoute: { type: "array", items: { type: "string" } },
+              tradeSizes: { type: "array", items: { type: "number" } },
+              estimatedPnL: { type: "number" }
+            },
+            required: ["agentId", "opportunityId", "executionRoute", "tradeSizes", "estimatedPnL"]
+          }
+        }
       ],
     };
   });
@@ -255,6 +290,59 @@ export function createMcpServer(): Server {
               {
                 type: "text",
                 text: JSON.stringify(result, null, 2),
+              },
+            ],
+          };
+        }
+
+        case "arbitrage_detect_triangular": {
+          const schema = z.object({
+            base: z.string(),
+            quote1: z.string(),
+            quote2: z.string(),
+            amount: z.number()
+          });
+          const { base, quote1, quote2, amount } = schema.parse(args);
+          const data = await detector.detectTriangular(base, quote1, quote2, amount);
+          return {
+            content: [
+              {
+                type: "text",
+                text: JSON.stringify(data, null, 2),
+              },
+            ],
+          };
+        }
+        
+        case "arbitrage_settle_agent_payload": {
+          const schema = z.object({
+            agentId: z.string(),
+            opportunityId: z.string(),
+            executionRoute: z.array(z.string()),
+            tradeSizes: z.array(z.number()),
+            estimatedPnL: z.number()
+          });
+          const parsed = schema.parse(args);
+          const timestamp = Date.now();
+          const rawPayload = `${parsed.agentId}:${parsed.opportunityId}:${parsed.executionRoute.join(",")}:${parsed.tradeSizes.join(",")}:${parsed.estimatedPnL}:${timestamp}`;
+          const signature = createHmac("sha256", config.apiSecret || "dev-secret")
+            .update(rawPayload)
+            .digest("hex");
+            
+          const payload: AgentSettlementPayload = {
+            agentId: parsed.agentId,
+            signature,
+            opportunityId: parsed.opportunityId,
+            executionRoute: parsed.executionRoute,
+            tradeSizes: parsed.tradeSizes,
+            estimatedPnL: parsed.estimatedPnL,
+            timestamp
+          };
+          return {
+            content: [
+              {
+                type: "text",
+                text: JSON.stringify(payload, null, 2),
               },
             ],
           };
