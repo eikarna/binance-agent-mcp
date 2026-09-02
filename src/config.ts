@@ -7,19 +7,20 @@ export interface BinanceConfig {
   maxSlippagePercent: number;
 }
 
+export function getBaseUrl(useTestnet: boolean): string {
+  // Binance public market endpoints are standard on api.binance.com
+  return useTestnet
+    ? "https://testnet.binance.vision"
+    : "https://api.binance.com";
+}
+
 export function loadConfig(): BinanceConfig {
   return {
     apiKey: process.env.BINANCE_API_KEY || "",
     apiSecret: process.env.BINANCE_API_SECRET || "",
-    useTestnet: process.env.BINANCE_USE_TESTNET === "true" || !process.env.BINANCE_API_KEY,
+    useTestnet: process.env.BINANCE_USE_TESTNET === "true",
     dryRun: process.env.BINANCE_DRY_RUN !== "false",
     maxNotionalUSDT: Number(process.env.MAX_NOTIONAL_USDT || "500"),
     maxSlippagePercent: Number(process.env.MAX_SLIPPAGE_PERCENT || "1.5"),
   };
-}
-
-export function getBaseUrl(useTestnet: boolean): string {
-  return useTestnet
-    ? "https://testnet.binance.vision"
-    : "https://api.binance.com";
 }
