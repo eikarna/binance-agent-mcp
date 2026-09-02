@@ -7,7 +7,6 @@
  * 4. Micro-Precision Float Normalizer
  */
 
-import { HardenedBinanceAgent } from "./hardened-agent";
 import { PolicyEngine } from "./policy";
 import { IdempotencyEngine } from "./idempotency";
 import { PrecisionEngine } from "./precision";

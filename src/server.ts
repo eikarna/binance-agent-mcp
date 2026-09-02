@@ -3,6 +3,10 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import {
 	CallToolRequestSchema,
 	ListToolsRequestSchema,
+	ListResourcesRequestSchema,
+	ReadResourceRequestSchema,
+	ListPromptsRequestSchema,
+	GetPromptRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 import { createHmac } from "crypto";
 import { z } from "zod";
@@ -24,6 +28,8 @@ export function createMcpServer(): Server {
 		{
 			capabilities: {
 				tools: {},
+				resources: {},
+				prompts: {},
 			},
 		},
 	);
@@ -379,6 +385,113 @@ export function createMcpServer(): Server {
 				],
 			};
 		}
+	});
+
+	// MCP Resources: Expose real-time market data & risk parameters as read-only resources
+	server.setRequestHandler(ListResourcesRequestSchema, async () => {
+		return {
+			resources: [
+				{
+					uri: "binance://market/btc-overview",
+					name: "BTC/USDT Market Intelligence",
+					description: "Real-time BTC ticker, 24hr volume, and orderbook spread metrics",
+					mimeType: "application/json",
+				},
+				{
+					uri: "binance://risk/guardrails",
+					name: "Active Risk Guardrails & Safeguard Policy",
+					description: "Pre-trade limits including Max Notional Cap, Slippage Collar, and Rate-Limit parameters",
+					mimeType: "application/json",
+				},
+			],
+		};
+	});
+
+	server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
+		const uri = request.params.uri;
+		if (uri === "binance://market/btc-overview") {
+			const ticker = await client.getTicker("BTCUSDT");
+			const book = await client.getOrderBook("BTCUSDT", 5);
+			return {
+				contents: [
+					{
+						uri,
+						mimeType: "application/json",
+						text: JSON.stringify({ ticker, book }, null, 2),
+					},
+				],
+			};
+		}
+		if (uri === "binance://risk/guardrails") {
+			return {
+				contents: [
+					{
+						uri,
+						mimeType: "application/json",
+						text: JSON.stringify(
+							{
+								maxNotionalUSDT: config.maxNotionalUSDT,
+								maxSlippageBps: 50,
+								dryRun: config.dryRun,
+								idempotencyCacheExpiryMs: 3600000,
+								timestampDriftToleranceMs: 1000,
+							},
+							null,
+							2,
+						),
+					},
+				],
+			};
+		}
+		throw new Error(`Resource not found: ${uri}`);
+	});
+
+	// MCP Prompts: Pre-defined prompt templates for autonomous trading workflows
+	server.setRequestHandler(ListPromptsRequestSchema, async () => {
+		return {
+			prompts: [
+				{
+					name: "institutional_trade_analysis",
+					description: "Evaluate symbol orderbook, calculate slippage & execute trade within hard risk limits",
+					arguments: [
+						{
+							name: "symbol",
+							description: "Trading symbol (e.g. BTCUSDT)",
+							required: true,
+						},
+						{
+							name: "side",
+							description: "Trade side: BUY or SELL",
+							required: true,
+						},
+					],
+				},
+			],
+		};
+	});
+
+	server.setRequestHandler(GetPromptRequestSchema, async (request) => {
+		const { name, arguments: args } = request.params;
+		if (name === "institutional_trade_analysis") {
+			const symbol = args?.symbol || "BTCUSDT";
+			const side = args?.side || "BUY";
+			return {
+				description: "Institutional Trade Workflow",
+				messages: [
+					{
+						role: "user",
+						content: {
+							type: "text",
+							text: `You are an institutional crypto execution agent. Follow these steps strictly:
+1. Inspect ${symbol} orderbook via 'binance_get_orderbook' to check spread and orderbook imbalance.
+2. Verify that your intended trade size does not violate notional cap and slippage collar.
+3. If safe, execute the ${side} order using 'binance_create_order' with deterministic parameters.`,
+						},
+					},
+				],
+			};
+		}
+		throw new Error(`Prompt not found: ${name}`);
 	});
 
 	return server;

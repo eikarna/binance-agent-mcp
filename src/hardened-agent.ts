@@ -20,8 +20,15 @@ export class HardenedBinanceAgent {
   private resilience: BinanceResilienceManager;
   private precision: PrecisionEngine;
 
-  constructor(apiKey: string, apiSecret: string) {
-    this.client = new BinanceClient(apiKey, apiSecret);
+  constructor(apiKey = "", apiSecret = "") {
+    this.client = new BinanceClient({
+      apiKey,
+      apiSecret,
+      useTestnet: false,
+      maxNotionalUSDT: 100,
+      maxSlippagePercent: 1.5,
+      dryRun: true,
+    });
     this.policy = new PolicyEngine({ maxNotionalUsd: 100, maxSlippageBps: 50 });
     this.idempotency = new IdempotencyEngine();
     this.resilience = new BinanceResilienceManager();
@@ -101,7 +108,14 @@ export class HardenedBinanceAgent {
         orderParams.timeInForce = 'GTC';
       }
 
-      const result = await this.client.request('POST', '/api/v3/order', orderParams, true);
+      const result = await this.client.createOrder({
+        symbol,
+        side: req.side,
+        type: req.type,
+        quantity: normalizedQty,
+        price: normalizedPrice,
+        timeInForce: req.type === 'LIMIT' ? 'GTC' : undefined,
+      });
       this.idempotency.recordResult(clientOrderId, 'EXECUTED', result);
       return { success: true, clientOrderId, data: result };
     } catch (err: any) {
