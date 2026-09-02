@@ -48,6 +48,13 @@ export class BinanceResilienceManager {
   }
 
   /**
+   * Directly sets used weight (useful for simulation & testing)
+   */
+  public setUsedWeight(weight: number): void {
+    this.currentUsedWeight1m = weight;
+  }
+
+  /**
    * Updates weight tracking from response headers
    */
   public updateWeightFromHeaders(headers: Headers): void {
