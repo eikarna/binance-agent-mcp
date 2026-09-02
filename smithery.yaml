@@ -1,0 +1,6 @@
+version: 1
+startCommand:
+  type: node
+  command: dist/index.js
+build:
+  command: bun run build

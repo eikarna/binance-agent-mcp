@@ -1,0 +1,23 @@
+{
+  "name": "binance-agent-mcp",
+  "version": "1.0.0",
+  "description": "Production-grade Model Context Protocol (MCP) Server & Autonomous Agent for Binance Spot & Futures Trading",
+  "type": "mcp-server",
+  "keywords": ["binance", "mcp", "crypto", "agent", "trading"],
+  "homepage": "https://github.com/binance-agent-mcp",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/binance-agent-mcp"
+  },
+  "bugs": {
+    "url": "https://github.com/binance-agent-mcp/issues"
+  },
+  "author": "Nix Seymour",
+  "license": "MIT",
+  "mcp": {
+    "transport": "stdio",
+    "commands": {
+      "start": "bun run dist/index.js"
+    }
+  }
+}

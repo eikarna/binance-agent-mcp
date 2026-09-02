@@ -1,0 +1,17 @@
+{
+  "project_name": "Binance Agent OS",
+  "tagline": "Autonomous on-chain arbitrage and high-frequency trading MCP server.",
+  "description": "Binance Agent OS is a production-grade Model Context Protocol (MCP) server that empowers AI agents to autonomously manage Binance Spot and Futures trading. It provides an embedded execution environment featuring secure EIP-712 payload signing, real-time market data APIs, and a deterministic arbitrage detector. Built for seamless integration with Cursor, Claude, and standalone agent runners, Binance Agent OS transforms LLMs into capable crypto-economic actors.",
+  "tracks": ["Agentic AI", "DeFi", "Trading Bots"],
+  "github_repo": "https://github.com/your-org/binance-agent-mcp",
+  "demo_video_url": "https://asciinema.org/a/demo-id",
+  "website": "https://github.com/your-org/binance-agent-mcp",
+  "technologies": ["Bun", "TypeScript", "MCP", "Binance API", "EIP-712", "LLM Agents"],
+  "team": [
+    {
+      "name": "Nix Seymour",
+      "role": "Lead Architect",
+      "github": "nixesey"
+    }
+  ]
+}
